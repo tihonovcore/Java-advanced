@@ -16,7 +16,7 @@
 [Easy](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/ArraySet/ArraySetEasy.java "Простая версия") <br>
 [Hard](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/ArraySet/ArraySet.java "Усложненная версия")
 
-## hw1 Walk
+## HW1 Walk
 ###### Хеширование файлов в директории (и поддиректориях)
 [Easy](https://github.com/tihonovcore/Walk/blob/master/src/ru/ifmo/rain/tihonov/walk/Walk.java "Простая версия") <br>
 [Hard](https://github.com/tihonovcore/Walk/blob/master/src/ru/ifmo/rain/tihonov/walk/RecursiveWalk.java "Усложненная версия")
