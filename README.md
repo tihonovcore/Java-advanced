@@ -3,6 +3,12 @@
 [Подробные условия заданий](http://kgeorgiy.info/courses/java-advanced/homeworks.html#homework "Подробные условия")<br>
 [Тестирование](https://www.kgeorgiy.info/git/geo/java-advanced-2019 "Тестирование")
 
+## HW4 Implementor
+###### Герератор реализации классов и интерфейсов<br>
+[Easy](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Простая версия") <br>
+[Hard]( "Усложненная версия") /* там же */
+
+
 ## HW3 Student
 ###### Реализация интерфейса базы данных<br>
 [Easy](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/student/StudentDB.java "Простая версия") <br>
