@@ -1,4 +1,4 @@
-package ru.ifmo.rain.tihonov.ArraySet;
+package ru.ifmo.rain.tihonov.arrayset;
 
 import java.util.AbstractList;
 import java.util.List;
