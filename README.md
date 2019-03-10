@@ -3,6 +3,16 @@
 [Подробные условия заданий](http://kgeorgiy.info/courses/java-advanced/homeworks.html#homework "Подробные условия")<br>
 [Тестирование](https://www.kgeorgiy.info/git/geo/java-advanced-2019 "Тестирование")
 
+## HW6 Javadoc
+###### Javadoc к Jar Implementor
+<font color="red">test</font> <br>
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
+
+
+## HW5 Jar Implementor
+###### Implementor с возможностью заворачивать результат в jar
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
+
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
