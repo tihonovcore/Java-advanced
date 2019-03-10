@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Implementation-Vendor: Tihonov Vitaly
+Main-Class: ru.ifmo.rain.tihonov.implementor.Implementor
