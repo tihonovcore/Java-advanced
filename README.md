@@ -5,17 +5,18 @@
 
 ## HW6 Javadoc
 ###### Javadoc к Jar Implementor
-<font color="red">test</font> <br>
-<span style="color:blue">some *test* text</span> <br>
+**HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
 
 
 ## HW5 Jar Implementor
 ###### Implementor с возможностью заворачивать результат в jar
+**HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
 
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
+**HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
 
 ## HW3 Student
