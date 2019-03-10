@@ -10,18 +10,22 @@
 ## HW6 Javadoc
 ###### Javadoc к Jar Implementor
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")
-
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
+[Javadoc Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/javadoc.sh "Javadoc")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
 
 ## HW5 Jar Implementor
 ###### Implementor с возможностью заворачивать результат в `.jar`
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
+[Jar Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/jar.sh "Jar")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
 
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
 
 ## HW3 Student
 ###### Реализация интерфейса базы данных<br>
