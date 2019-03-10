@@ -3,16 +3,20 @@
 [Подробные условия заданий](http://kgeorgiy.info/courses/java-advanced/homeworks.html#homework "Подробные условия")<br>
 [Тестирование](https://www.kgeorgiy.info/git/geo/java-advanced-2019 "Тестирование")
 
+## HW7 IterativeParallelism
+###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
+[Solution](link "Сложная версия")
+
 ## HW6 Javadoc
 ###### Javadoc к Jar Implementor
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")
 
 
 ## HW5 Jar Implementor
-###### Implementor с возможностью заворачивать результат в jar
+###### Implementor с возможностью заворачивать результат в `.jar`
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
+[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")
 
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
