@@ -6,6 +6,7 @@
 ## HW6 Javadoc
 ###### Javadoc к Jar Implementor
 <font color="red">test</font> <br>
+<span style="color:blue">some *test* text</span> <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")
 
 
