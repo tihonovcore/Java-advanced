@@ -110,11 +110,19 @@ public class ArraySet<T> extends AbstractSet<T> implements NavigableSet<T> {
         return new ArraySet<>(list.subList(from, to + 1), comparator);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
-        if (comparator != null && comparator.compare(fromElement, toElement) > 0) {
-            throw new IllegalArgumentException();
+        if (comparator != null) {
+            if (comparator.compare(fromElement, toElement) > 0) {
+                throw new IllegalArgumentException();
+            }
+        } else {
+            if (fromElement instanceof Comparable && ((Comparable) fromElement).compareTo(toElement) > 0) {
+                throw new IllegalArgumentException();
+            }
         }
+
         return subSet(fromElement, true, toElement, false);
     }
 
