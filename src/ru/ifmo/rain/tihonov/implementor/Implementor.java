@@ -56,15 +56,15 @@ public class Implementor implements JarImpler {
 
     /**
      * Run {@code Implement} or {@code JarImplement} depends on arguments.
-     *
+     * <p>
      * If arguments is {@code [realizable class] [path to save file] }
      * create java-file with implementation of realizable class on the path.
      * If arguments is {@code [-jar] [realizable class] [path to save file] }
      * create jar-file with implementation of realizable class on the path.
      *
      * @param args command-line arguments. Should contains
-     * {@code [realizable class] [path to save file] }
-     * or {@code [-jar] [realizable class] [path to save jar-file] }
+     *             {@code [realizable class] [path to save file] }
+     *             or {@code [-jar] [realizable class] [path to save jar-file] }
      */
     public static void main(String[] args) {
         if (args == null) {
@@ -99,8 +99,8 @@ public class Implementor implements JarImpler {
     /**
      * Return new path, append to {@code path} package and file name
      *
-     * @param token implementing class or interface
-     * @param path path for saving file
+     * @param token  implementing class or interface
+     * @param path   path for saving file
      * @param suffix file extension
      * @return {@code path} completed package and class name
      * @throws ImplerException if {@code path} is invalid
@@ -138,7 +138,7 @@ public class Implementor implements JarImpler {
     /**
      * Generate java-code with implementation of {@code token} and
      * saving result in jar-file by {@code path}.
-     *
+     * <p>
      * Call {@code implement} to generate class and save result
      * in {@code .java} file. Then compile it and put into jar-file
      * on the {@code path}.
@@ -146,7 +146,7 @@ public class Implementor implements JarImpler {
      * @param token realizable class or interface
      * @param path  path to saving jar-file
      * @throws ImplerException can not create temporary directory, or
-     * compile error, or error while creating {@code .jar}
+     *                         compile error, or error while creating {@code .jar}
      */
     @Override
     public void implementJar(Class<?> token, Path path) throws ImplerException {
@@ -160,10 +160,13 @@ public class Implementor implements JarImpler {
         implement(token, temp);
 
         JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
+
         String[] args = new String[]{
                 getPath(token, temp, ".java").toString(),
                 "-cp",
-                temp.toString() + File.pathSeparator + System.getProperty("java.class.path")
+                temp.toString() + File.pathSeparator + System.getProperty("java.class.path"),
+                "-encoding",
+                "UTF8"
         };
 
         if (javaCompiler.run(null, null, null, args) != 0) {
@@ -171,7 +174,7 @@ public class Implementor implements JarImpler {
         }
 
         try (JarOutputStream writer = new JarOutputStream(Files.newOutputStream(path), getManifest("Tihonov Vitaly"))) {
-            writer.putNextEntry(new ZipEntry(token.getName().replace('.', File.separatorChar) + "Impl.class"));
+            writer.putNextEntry(new ZipEntry(token.getName().replace('.', '/') + "Impl.class"));
             Files.copy(getPath(token, temp, ".class"), writer);
         } catch (InvalidPathException e) {
             throw new ImplerException("You are invalid: " + e.getMessage());
@@ -181,30 +184,30 @@ public class Implementor implements JarImpler {
     }
 
     /**
-     * Create {@link Manifest} and set implementorVendor as attribute
+     * Create {@link Manifest} and set vendor as attribute
      *
-     * @param implementorVendor implementor vendor name
-     * @return {@link Manifest} with implementorVendor as attribute
+     * @param vendor implementor vendor name
+     * @return {@link Manifest} with vendor as attribute
      */
-    private Manifest getManifest(String implementorVendor) {
+    private Manifest getManifest(String vendor) {
         Manifest manifest = new Manifest();
         Attributes attributes = manifest.getMainAttributes();
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, implementorVendor);
+        attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, vendor);
         return manifest;
     }
 
     /**
      * Generate java-code with implementation of {@code token} and
      * saving result on the {@code path}.
-     *
+     * <p>
      * Call {@code setPackage}, {@code setTitle}, {@code setMethod} to generate
      * class and save in {@code .java} file
      *
      * @param token realizable class or interface
      * @param path  path to saving result
      * @throws ImplerException either arguments are null or {@code token} is Enum,
-     * primitive, array, final or utility class
+     *                         primitive, array, final or utility class
      */
     @Override
     public void implement(Class<?> token, Path path) throws ImplerException {
