@@ -36,8 +36,8 @@
 
 ## HW2 ArraySet
 ###### Класс `ArraySet`, реализующий неизменяемое упорядоченное множество<br>
-[Easy {содержит ошибки}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/ArraySet/ArraySetEasy.java "Простая версия") <br>
-[Hard](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/ArraySet/ArraySet.java "Усложненная версия")
+[Easy {содержит ошибки}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayaet/ArraySetEasy.java "Простая версия") <br>
+[Hard](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ArraySet.java "Усложненная версия")
 
 ## HW1 Walk
 ###### Хеширование файлов в директории (и поддиректориях)
