@@ -5,7 +5,7 @@
 
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
-[Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent.IterativeParallelism.java "Решение")<br>
+[Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent/IterativeParallelism.java "Решение")<br>
 [Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/runConcurrent.sh "Решение")
 The only argument: `scalar` - easy modification, `list` - hard modification 
 <br>
@@ -14,15 +14,15 @@ The only argument: `scalar` - easy modification, `list` - hard modification
 ###### Javadoc к Jar Implementor
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
-[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
-[Javadoc Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/javadoc.sh "Javadoc")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")<br>
+[Javadoc Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/javadoc.sh "Javadoc")
 
 ## HW5 Jar Implementor
 ###### Implementor с возможностью заворачивать результат в `.jar`
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
-[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
-[Jar Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/jar.sh "Jar")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")<br>
+[Jar Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/jar.sh "Jar")
 
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
