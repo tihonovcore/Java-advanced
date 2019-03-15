@@ -36,10 +36,10 @@ function gump() {
 
 function info() {
     echo "**********************************"
-    echo "classDot: ${classDot}"
-    echo "classSlash: ${classSlash}"
-    echo "runJur: ${runJar}"
-    echo "classPath: ${classPath}"
+    echo "Full class name: ${classDot}"
+    echo "Absolute class path: ${classSlash}"
+    echo "Test package: ${runJar}"
+    echo "classpath: ${classPath}"
     echo "**********************************"
 }
 
