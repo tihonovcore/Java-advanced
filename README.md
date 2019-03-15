@@ -5,21 +5,24 @@
 
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
-[Solution](link "Сложная версия")
+[Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent.IterativeParallelism.java "Решение")<br>
+[Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/runConcurrent.sh "Решение")
+The only argument: `scalar` - easy modification, `list` - hard modification 
+<br>
 
 ## HW6 Javadoc
 ###### Javadoc к Jar Implementor
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
-[Javadoc Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/javadoc.sh "Javadoc")<br>
 [Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
+[Javadoc Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/javadoc.sh "Javadoc")<br>
 
 ## HW5 Jar Implementor
 ###### Implementor с возможностью заворачивать результат в `.jar`
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Решение")<br>
-[Jar Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/jar.sh "Jar")<br>
 [Run script](https://github.com/tihonovcore/Java-advanced/blob/master/src/run.sh "Run")
+[Jar Generator](https://github.com/tihonovcore/Java-advanced/blob/master/src/jar.sh "Jar")<br>
 
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов<br>
@@ -36,7 +39,7 @@
 
 ## HW2 ArraySet
 ###### Класс `ArraySet`, реализующий неизменяемое упорядоченное множество<br>
-[Easy {содержит ошибки}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayaet/ArraySetEasy.java "Простая версия") <br>
+[Easy {содержит ошибки}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ArraySetEasy.java "Простая версия") <br>
 [Hard](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ArraySet.java "Усложненная версия")
 
 ## HW1 Walk
