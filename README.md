@@ -6,7 +6,8 @@
 ## GUM
 ###### Скрипт для запуска тестов и комлияции решений
 [Gum script](https://github.com/tihonovcore/Java-advanced/blob/master/src/Gum.sh "Скрипт")<br>
-[Docs](https://github.com/tihonovcore/Java-advanced/blob/master/src/GumDoc.java "Документация")
+[Docs](https://github.com/tihonovcore/Java-advanced/blob/master/src/GumDoc.java "Документация")<br>
+[Пример gump](https://github.com/tihonovcore/Java-advanced/blob/master/src/gump "gump")
 
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков

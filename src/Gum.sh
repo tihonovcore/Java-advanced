@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 
 #your surname
 name="tihonov"
@@ -17,115 +17,143 @@ baseClassSlash="ru/ifmo/rain/${name}"
 #prefix of jar name
 baseRunJar="info.kgeorgiy.java.advanced"
 
-function setTask() {
-    case ${task} in
-    "1" )
-        mainClass="Walk"
-        jar="walk"
-    ;;
-    "2" )
-        mainClass="ArraySet"
-        package="arrayset"
-    ;;
-    "3" )
-        mainClass="StudentDB"
-        package="student"
-    ;;
-    "4" )
-        mainClass="Implementor"
-        package="implementor"
-    ;;
-    "5" )
-        mainClass="Implementor"
-        package="implementor"
-    ;;
-    "6" )
-        mainClass="Implementor"
-        package="implementor"
-    ;;
-    "7" )
-        mainClass="IterativeParallelism"
-        package="concurrent"
-    ;;
-    esac
+function gump() {
+    array=()
+    index=0
+    while read line;
+    do
+        if [[ "$line" == "" ]]
+        then
+            break
+        fi
 
-    classDot="${baseClassDot}.${package}.${mainClass}"
-    classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
-    runJar="${baseRunJar}.${package}"
-    classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"
+        array[$index]="$line"
+        index=$(($index+1))
+    done < gump
 
-    echo "*******************************"
+    if [[ ${array[0]} != "" ]]; then
+        name=${array[0]}
+    fi
+
+    if [[ ${array[1]} != "" ]]; then
+        baseTestPath=${array[1]}
+    fi
+
+    if [[ ${array[2]} != "" ]]; then
+        baseLibPath=${array[2]}
+    fi
+
+    if [[ ${array[3]} != "" ]]; then
+        basePackagePath=${array[3]}
+    fi
+
+    if [[ ${array[4]} != "" ]]; then
+        input=${array[4]}
+    fi
+}
+
+function info() {
+    echo "*INFO*****************************"
     echo "classDot: ${classDot}"
     echo "classSlash: ${classSlash}"
     echo "runJur: ${runJar}"
     echo "classPath: ${classPath}"
+    echo "**********************************"
 }
 
-while [[ ${input} != "4" ]]
+function setTask() {
+    classDot="${baseClassDot}.${package}.${mainClass}"
+    classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
+    runJar="${baseRunJar}.${package}"
+    classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"
+}
+
+function compile() {
+    rm -f ${classSlash}/*.class
+    echo "Compiling..."
+    javac -cp ${classPath} ${classSlash}
+}
+
+function run() {
+    echo "Enter run arg:"
+    read runArg
+    java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot}
+}
+
+function help() {
+    echo "*HELP*****************************"
+    echo "<number> - set current task"
+    echo "r - run current task"
+    echo "c - compile current task"
+    echo "cr - compile and run current task"
+    echo "**********************************"
+}
+
+gump
+help
+while [[ true ]]
 do
-    echo "*******************************"
-    echo "1 - Choose task"
-    echo "2 - Execute"
-    echo "3 - Help"
-    echo "4 - Exit"
-    echo "*******************************"
-    echo "Choose command: "
-    read input
-
     case ${input} in
-        "1" )
-        echo "Choose task:"
-        read task
-        if [[ 1 -le task ]] && [[ task -le 7 ]]
-        then
-            setTask
-        else
-            echo "Wrong task number: ${task}"
-        fi
+    "1" )
+        mainClass="Walk"
+        package="walk"
+        setTask
     ;;
-        "2" )
-        compile=0
-        run=0
-
-        echo "Enter execute argument (c/r/cr):"
-        read args
-
-        case ${args} in
-        "r" )
-            run=1
-        ;;
-        "c" )
-            compile=1
-        ;;
-        "cr" )
-            compile=1
-            run=1
-        ;;
-        esac
-
-        if (( compile == 1 ))
-        then
-            rm -f ${classSlash}/*.class
-            echo "Compiling..."
-            javac -cp ${classPath} ${classSlash}
-        fi
-
-        if (( run == 1 ))
-        then
-            echo "Enter run arg:"
-            read runArg
-
-            java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot}
-        fi
+    "2" )
+        mainClass="ArraySet"
+        package="arrayset"
+        setTask
     ;;
-        "3" )
-            echo "*******************************"
-            echo "Execute arguments: "
-            echo "r - run"
-            echo "c - compile"
-            echo "cr - compile, then run"
+    "3" )
+        mainClass="StudentDB"
+        package="student"
+        setTask
+    ;;
+    "4" )
+        mainClass="Implementor"
+        package="implementor"
+        setTask
+    ;;
+    "5" )
+        mainClass="Implementor"
+        package="implementor"
+        setTask
+    ;;
+    "6" )
+        mainClass="Implementor"
+        package="implementor"
+        setTask
+    ;;
+    "7" )
+        mainClass="IterativeParallelism"
+        package="concurrent"
+        setTask
+    ;;
+    "r" )
+        run
+    ;;
+    "c" )
+        compile
+    ;;
+    "cr" )
+        compile
+        run
+    ;;
+    "gump" )
+        gump
+        setTask
+    ;;
+    "info" )
+        info
+    ;;
+    "help" )
+        help
+    ;;
+    "exit" )
+        exit
     ;;
     esac
+    echo "Enter command: "
+    read input
 done
-
 exit
