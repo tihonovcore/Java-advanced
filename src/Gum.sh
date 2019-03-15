@@ -22,38 +22,20 @@ function gump() {
     index=0
     while read line;
     do
-        if [[ "$line" == "" ]]
-        then
-            break
-        fi
-
         array[$index]="$line"
         index=$(($index+1))
     done < gump
 
-    if [[ ${array[0]} != "" ]]; then
-        name=${array[0]}
-    fi
-
-    if [[ ${array[1]} != "" ]]; then
-        baseTestPath=${array[1]}
-    fi
-
-    if [[ ${array[2]} != "" ]]; then
-        baseLibPath=${array[2]}
-    fi
-
-    if [[ ${array[3]} != "" ]]; then
-        basePackagePath=${array[3]}
-    fi
-
-    if [[ ${array[4]} != "" ]]; then
-        input=${array[4]}
-    fi
+    name=${array[0]}
+    baseTestPath=${array[1]}
+    baseLibPath=${array[2]}
+    basePackagePath=${array[3]}
+    input=${array[4]}
+    salt=${array[5]}
 }
 
 function info() {
-    echo "*INFO*****************************"
+    echo "**********************************"
     echo "classDot: ${classDot}"
     echo "classSlash: ${classSlash}"
     echo "runJur: ${runJar}"
@@ -66,6 +48,7 @@ function setTask() {
     classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
     runJar="${baseRunJar}.${package}"
     classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"
+    runArg=""
 }
 
 function compile() {
@@ -75,13 +58,23 @@ function compile() {
 }
 
 function run() {
-    echo "Enter run arg:"
-    read runArg
-    java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot}
+    if [[ "$runArg" == "" ]]; then
+        echo "Enter run argument (easy/hard):"
+        read runArg
+    fi
+    runTest
+}
+
+function runTest() {
+    if [[ "$salt" == "" ]]; then
+        java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot}
+    else
+        java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot} ${salt}
+    fi
 }
 
 function help() {
-    echo "*HELP*****************************"
+    echo "**********************************"
     echo "<number> - set current task"
     echo "r - run current task"
     echo "c - compile current task"
