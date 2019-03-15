@@ -3,6 +3,11 @@
 [Подробные условия заданий](http://kgeorgiy.info/courses/java-advanced/homeworks.html#homework "Подробные условия")<br>
 [Тестирование](https://www.kgeorgiy.info/git/geo/java-advanced-2019 "Тестирование")
 
+## GUM
+###### Скрипт для запуска тестов и комлияции решений
+[Gum script](https://github.com/tihonovcore/Java-advanced/blob/master/src/Gum.sh "Скрипт")<br>
+[Docs](https://github.com/tihonovcore/Java-advanced/blob/master/src/GumDoc.java "Документация")
+
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
 [Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent/IterativeParallelism.java "Решение")<br>

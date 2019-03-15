@@ -19,10 +19,10 @@ baseRunJar="info.kgeorgiy.java.advanced"
 
 function setTask() {
     case ${task} in
-#    "1" )
-#        mainClass="Walk"
-#        jar=""
-#    ;;
+    "1" )
+        mainClass="Walk"
+        jar="walk"
+    ;;
     "2" )
         mainClass="ArraySet"
         package="arrayset"
