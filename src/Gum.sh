@@ -1,4 +1,4 @@
-    #!/bin/bash
+#!/bin/bash
 
 #your surname
 name="tihonov"
@@ -47,11 +47,17 @@ function info() {
 }
 
 function setTask() {
+    baseClassDot="ru.ifmo.rain.${name}"
+    baseClassSlash="ru/ifmo/rain/${name}"
+    baseRunJar="info.kgeorgiy.java.advanced"
+
     classDot="${baseClassDot}.${package}.${mainClass}"
     classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
     runJar="${baseRunJar}.${package}"
     classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"
     runArg=""
+
+    echo "Task ${input} selected"
 }
 
 function compile() {
@@ -89,6 +95,11 @@ function help() {
     echo "r - run current task"
     echo "c - compile current task"
     echo "cr - compile and run current task"
+    echo "gump - считывает файл 'gump' заново"
+    echo "clone - клонит реп с тестами в текущую директорию, копирует небходимые либы и кладёт их рядом со скриптом"
+    echo "info - выдаёт информацию о classpath и других переменных скрипта"
+    echo "help - выдаёт короткую справку"
+    echo "exit - завершает работу"
     echo "**********************************"
 }
 

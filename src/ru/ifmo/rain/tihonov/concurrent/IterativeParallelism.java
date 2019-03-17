@@ -46,9 +46,8 @@ public class IterativeParallelism implements ScalarIP {
         return result;
     }
 
-    @Override
-    public <T> T maximum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        Function<List<? extends T>, ? extends T> getMax = (l) -> {
+    private <T> Function<List<? extends T>, ? extends T> getMax(Comparator<? super T> comparator) {
+        return (l) -> {
             T res = l.get(0);
             for (var x : l) {
                 if (comparator.compare(res, x) < 0) {
@@ -57,23 +56,16 @@ public class IterativeParallelism implements ScalarIP {
             }
             return res;
         };
+    }
 
-        return getMax.apply(result(threads, list, getMax));
+    @Override
+    public <T> T maximum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
+        return (T) getMax(comparator).apply(result(threads, list, getMax(comparator)));
     }
 
     @Override
     public <T> T minimum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        Function<List<? extends T>, ? extends T> getMin = (l) -> {
-            T res = l.get(0);
-            for (var x : l) {
-                if (comparator.compare(res, x) > 0) {
-                    res = x;
-                }
-            }
-            return res;
-        };
-
-        return getMin.apply(result(threads, list, getMin));
+        return (T) getMax(comparator.reversed()).apply(result(threads, list, getMax(comparator.reversed())));
     }
 
     @Override
