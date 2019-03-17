@@ -17,6 +17,9 @@ baseClassSlash="ru/ifmo/rain/${name}"
 #prefix of jar name
 baseRunJar="info.kgeorgiy.java.advanced"
 
+#git
+git="https://www.kgeorgiy.info/git/geo/java-advanced-2019"
+
 function gump() {
     array=()
     index=0
@@ -71,6 +74,13 @@ function runTest() {
     else
         java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot} ${salt}
     fi
+}
+
+function clone() {
+    rm -R java-advanced-2019
+    git clone ${git}
+    cp -f java-advanced-2019/artifacts/*.jar .
+    cp -f java-advanced-2019/lib/*.jar .
 }
 
 function help() {
@@ -138,6 +148,9 @@ do
     ;;
     "info" )
         info
+    ;;
+    "clone" )
+        clone
     ;;
     "help" )
         help
