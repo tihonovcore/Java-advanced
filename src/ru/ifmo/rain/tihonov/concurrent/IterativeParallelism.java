@@ -6,20 +6,36 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * Contains methods for parallel evaluating
+ */
 public class IterativeParallelism implements ScalarIP {
+    /**
+     * Default constructor
+     */
+    public IterativeParallelism() {
+    }
+
     private <T> List<List<? extends T>> getSublists(int amount, List<? extends T> list) {
         List<List<? extends T>> result = new ArrayList<>();
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Count of thread should be >= 1");
+        }
 
         int size = Math.min(amount, list.size());
         int blockSize = list.size() / size;
 
+        int from = 0, to = blockSize;
         for (int i = 0; i < size; i++) {
-            result.add(list.subList(i * blockSize, (i + 1) * blockSize));
+            if (i < list.size() % blockSize) {
+                to++;
+            }
+            result.add(list.subList(from, to));
+            from = to;
+            to = Math.min(list.size(), to + blockSize);
         }
 
-        if (blockSize * result.size() < list.size()) {
-            result.add(list.subList(blockSize * result.size(), list.size()));
-        }
         return result;
     }
 
@@ -36,10 +52,10 @@ public class IterativeParallelism implements ScalarIP {
             final List<? extends T> temp = lists.get(i);
             final int curr = i;
             workers.add(new Thread(() -> result.set(curr, func.apply(temp))));
+            workers.get(i).start();
         }
 
         for (Thread w : workers) {
-            w.start();
             w.join();
         }
 
@@ -58,16 +74,50 @@ public class IterativeParallelism implements ScalarIP {
         };
     }
 
+    /**
+     * Find and return maximum element by comparator
+     *
+     * @param threads    number or concurrent threads.
+     * @param list       list elements for checking.
+     * @param comparator value comparator.
+     * @param <T>        type of elements.
+     * @return maximum element
+     * @throws InterruptedException if threads error happened
+     */
     @Override
     public <T> T maximum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        return (T) getMax(comparator).apply(result(threads, list, getMax(comparator)));
+        Function<List<? extends T>, ? extends T> max = (l) -> list.stream().max(comparator).orElse(null);
+
+        return result(threads, list, max).stream().max(comparator).orElse(null);
     }
 
+    /**
+     * Find and return minimum element by comparator
+     *
+     * @param threads    number or concurrent threads.
+     * @param list       list elements for checking.
+     * @param comparator value comparator.
+     * @param <T>        type of elements.
+     * @return minimum element
+     * @throws InterruptedException if threads error happened
+     */
     @Override
     public <T> T minimum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        return (T) getMax(comparator.reversed()).apply(result(threads, list, getMax(comparator.reversed())));
+        Function<List<? extends T>, ? extends T> min = (l) -> list.stream().min(comparator).orElse(null);
+
+        return result(threads, list, min).stream().min(comparator).orElse(null);
     }
 
+    /**
+     * Check all elements for matching predicate
+     *
+     * @param threads   number or concurrent threads.
+     * @param list      {@link List} elements for checking
+     * @param predicate test predicate.
+     * @param <T>       type of elements
+     * @return true if any element of list match test predicate, otherwise false
+     * @throws InterruptedException if threads error happened
+     */
     @Override
     public <T> boolean all(int threads, List<? extends T> list, Predicate<? super T> predicate) throws InterruptedException {
         Function<List<? extends T>, Boolean> filter = (l) -> list.stream().allMatch(predicate);
@@ -75,11 +125,20 @@ public class IterativeParallelism implements ScalarIP {
         return result(threads, list, filter).stream().allMatch(b -> b);
     }
 
+    /**
+     * Check elements for matching predicate
+     *
+     * @param threads   number or concurrent threads.
+     * @param list      {@link List} elements for checking
+     * @param predicate test predicate.
+     * @param <T>       type of elements
+     * @return true if any element of list match test predicate, otherwise false
+     * @throws InterruptedException if threads error happened
+     */
     @Override
     public <T> boolean any(int threads, List<? extends T> list, Predicate<? super T> predicate) throws InterruptedException {
         Function<List<? extends T>, Boolean> filter = (l) -> list.stream().anyMatch(predicate);
 
-        return result(threads, list, filter).stream().allMatch(b -> b);
-
+        return result(threads, list, filter).stream().anyMatch(b -> b);
     }
 }
