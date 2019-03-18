@@ -161,6 +161,10 @@ public class Implementor implements JarImpler {
 
         JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
 
+        if (javaCompiler == null) {
+            throw new ImplerException("Can not create compiler");
+        }
+
         String[] args = new String[]{
                 getPath(token, temp, ".java").toString(),
                 "-cp",
@@ -266,11 +270,27 @@ public class Implementor implements JarImpler {
      * @throws ImplerException error while creating file or saving result
      */
     private void write(Path path) throws ImplerException {
+        toUnicode();
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(result.toString());
         } catch (IOException e) {
             throw new ImplerException("IO error while saving result: " + e.getMessage());
         }
+    }
+
+    /**
+     * Translate symbols in {@code result} to Unicode
+     */
+    private void toUnicode() {
+        StringBuilder unicode = new StringBuilder();
+        for (int i = 0; i < result.length(); i++) {
+            char ch = result.charAt(i);
+            if (ch > 128) {
+                unicode.append("\\").append("u");
+            }
+            unicode.append(ch);
+        }
+        result = unicode;
     }
 
     /**
@@ -355,7 +375,7 @@ public class Implementor implements JarImpler {
      */
     private void setModifiers(Method m) {
         int mod = m.getModifiers();
-        result.append(Modifier.toString(mod & (mod ^ Modifier.NATIVE) & (mod ^ Modifier.ABSTRACT) & (mod ^ Modifier.TRANSIENT))).append(" ");
+        result.append(Modifier.toString(mod & (mod ^ (Modifier.NATIVE | Modifier.ABSTRACT | Modifier.TRANSIENT)))).append(" ");
     }
 
     /**
