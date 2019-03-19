@@ -279,16 +279,17 @@ public class Implementor implements JarImpler {
     }
 
     /**
-     * Translate symbols in {@code result} to Unicode
+     * Translate international symbols from {@code result} to Unicode
      */
     private void toUnicode() {
         StringBuilder unicode = new StringBuilder();
         for (int i = 0; i < result.length(); i++) {
             char ch = result.charAt(i);
-            if (ch > 128) {
-                unicode.append("\\").append("u");
+            if (ch >= 128) {
+                unicode.append("\\u").append(String.format("%04X", (int) ch));
+            } else {
+                unicode.append(ch);
             }
-            unicode.append(ch);
         }
         result = unicode;
     }

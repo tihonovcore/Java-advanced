@@ -76,17 +76,15 @@ function run() {
 
 function runTest() {
     if [[ "$salt" == "" ]]; then
-        java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot}
+        java -cp ${classPath} -p ${classPath} -m ${runJar} ${runArg} ${classDot}
     else
-        java -cp ${classPath} -p . -m ${runJar} ${runArg} ${classDot} ${salt}
+        java -cp ${classPath} -p ${classPath} -m ${runJar} ${runArg} ${classDot} ${salt}
     fi
 }
 
 function clone() {
     rm -R java-advanced-2019
     git clone ${git}
-    cp -f java-advanced-2019/artifacts/*.jar .
-    cp -f java-advanced-2019/lib/*.jar .
 }
 
 function help() {
