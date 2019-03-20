@@ -101,6 +101,13 @@ function help() {
     echo "**********************************"
 }
 
+function check() {
+    echo "**********************************"
+    echo "Last changing ${runJar}.jar: "
+    stat -c%z ${baseTestPath}/${runJar}.jar
+    echo "**********************************"
+}
+
 gump
 help
 while [[ true ]]
@@ -165,6 +172,9 @@ do
     ;;
     "clone" )
         clone
+    ;;
+    "check" )
+        check
     ;;
     "help" )
         help
