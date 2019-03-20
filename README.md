@@ -9,6 +9,10 @@
 [Docs](https://github.com/tihonovcore/Java-advanced/blob/master/src/GumDoc.java "Документация")<br>
 [Пример gump](https://github.com/tihonovcore/Java-advanced/blob/master/src/gump "gump")
 
+## HW8 ParallelMapperImpl
+###### Реализация `ParallelMapper`, вычисляющая функцию на каждом из указанных аргуметнов параллельно
+[Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/mapper/ParallelMapperImpl.java "Решение")<br>
+
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
 [Solution {Easy}](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent/IterativeParallelism.java "Решение")<br>

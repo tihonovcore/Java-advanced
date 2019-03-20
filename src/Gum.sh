@@ -141,6 +141,11 @@ do
         package="concurrent"
         setTask
     ;;
+    "8" )
+        mainClass="ParallelMapperImpl"
+        package="mapper"
+        setTask
+    ;;
     "r" )
         run
     ;;

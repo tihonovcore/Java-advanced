@@ -1,37 +1,39 @@
 package ru.ifmo.rain.tihonov.concurrent;
 
-import info.kgeorgiy.java.advanced.concurrent.ScalarIP;
+import info.kgeorgiy.java.advanced.concurrent.ListIP;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Contains methods for parallel evaluating
  */
-public class IterativeParallelism implements ScalarIP {
+public class IterativeParallelism implements ListIP {
     /**
      * Default constructor
      */
     public IterativeParallelism() {
     }
 
-    private <T> List<List<? extends T>> getSublists(int amount, List<? extends T> list) {
+    private <T> List<List<? extends T>> getSublists(int threads, List<? extends T> list) {
         List<List<? extends T>> result = new ArrayList<>();
 
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Count of thread should be >= 1");
+        if (threads <= 0) {
+            throw new IllegalArgumentException("Count of threads should be >= 1");
         }
 
-        int size = Math.min(amount, list.size());
-        int blockSize = list.size() / size;
+        threads = Math.min(threads, list.size());
+        int blockSize = list.size() / threads;
 
         int from = 0, to = blockSize;
-        for (int i = 0; i < size; i++) {
-            if (i < list.size() % blockSize) {
+        for (int i = 0; i < threads; i++) {
+            if (i < list.size() - blockSize * threads) {
                 to++;
             }
             result.add(list.subList(from, to));
+
             from = to;
             to = Math.min(list.size(), to + blockSize);
         }
@@ -39,11 +41,13 @@ public class IterativeParallelism implements ScalarIP {
         return result;
     }
 
-    private <T, R> List<R> result(int threads, List<? extends T> list, Function<List<? extends T>, R> func) throws InterruptedException {
+    private <T, U, R> R result(int threads, List<? extends T> list,
+                               Function<List<? extends T>, ? extends U> func,
+                               Function<List<? extends U>, ? extends R> concat) throws InterruptedException {
         var lists = getSublists(threads, list);
 
         List<Thread> workers = new ArrayList<>();
-        List<R> result = new ArrayList<>();
+        List<U> result = new ArrayList<>();
         for (int i = 0; i < lists.size(); i++) {
             result.add(null);
         }
@@ -59,19 +63,7 @@ public class IterativeParallelism implements ScalarIP {
             w.join();
         }
 
-        return result;
-    }
-
-    private <T> Function<List<? extends T>, ? extends T> getMax(Comparator<? super T> comparator) {
-        return (l) -> {
-            T res = l.get(0);
-            for (var x : l) {
-                if (comparator.compare(res, x) < 0) {
-                    res = x;
-                }
-            }
-            return res;
-        };
+        return concat.apply(result);
     }
 
     /**
@@ -88,7 +80,7 @@ public class IterativeParallelism implements ScalarIP {
     public <T> T maximum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
         Function<List<? extends T>, ? extends T> max = (l) -> list.stream().max(comparator).orElse(null);
 
-        return result(threads, list, max).stream().max(comparator).orElse(null);
+        return result(threads, list, max, max);
     }
 
     /**
@@ -105,40 +97,89 @@ public class IterativeParallelism implements ScalarIP {
     public <T> T minimum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
         Function<List<? extends T>, ? extends T> min = (l) -> list.stream().min(comparator).orElse(null);
 
-        return result(threads, list, min).stream().min(comparator).orElse(null);
+        return result(threads, list, min, min);
     }
 
     /**
      * Check all elements for matching predicate
      *
      * @param threads   number or concurrent threads.
-     * @param list      {@link List} elements for checking
+     * @param values      {@link List} elements for checking
      * @param predicate test predicate.
      * @param <T>       type of elements
-     * @return true if any element of list match test predicate, otherwise false
+     * @return true if any element of values match test predicate, otherwise false
      * @throws InterruptedException if threads error happened
      */
     @Override
-    public <T> boolean all(int threads, List<? extends T> list, Predicate<? super T> predicate) throws InterruptedException {
-        Function<List<? extends T>, Boolean> filter = (l) -> list.stream().allMatch(predicate);
-
-        return result(threads, list, filter).stream().allMatch(b -> b);
+    public <T> boolean all(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
+        return result(threads, values,
+                (list) -> list.stream().allMatch(predicate),
+                (list) -> list.stream().allMatch(b -> b));
     }
 
     /**
      * Check elements for matching predicate
      *
      * @param threads   number or concurrent threads.
-     * @param list      {@link List} elements for checking
+     * @param values      {@link List} elements for checking
      * @param predicate test predicate.
      * @param <T>       type of elements
-     * @return true if any element of list match test predicate, otherwise false
+     * @return true if any element of values match test predicate, otherwise false
      * @throws InterruptedException if threads error happened
      */
     @Override
-    public <T> boolean any(int threads, List<? extends T> list, Predicate<? super T> predicate) throws InterruptedException {
-        Function<List<? extends T>, Boolean> filter = (l) -> list.stream().anyMatch(predicate);
+    public <T> boolean any(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
+        return result(threads, values,
+                (list) -> list.stream().anyMatch(predicate),
+                (list) -> list.stream().anyMatch(b -> b));
+    }
 
-        return result(threads, list, filter).stream().anyMatch(b -> b);
+    /**
+     * Concatenate string-value of all elements in list
+     *
+     * @param threads number or concurrent threads.
+     * @param values  {@link List} elements for joining.
+     * @return {@link String} contains all elements in list.
+     * @throws InterruptedException if threads error happened.
+     */
+    @Override
+    public String join(int threads, List<?> values) throws InterruptedException {
+        return result(threads, values,
+                (list) -> list.stream().map(Object::toString).collect(Collectors.joining()),
+                (list) -> String.join("", list));
+    }
+
+    /**
+     * Generate and return {@link List} of initial elements
+     * which satisfy the {@code predicate}.
+     *
+     * @param threads   number or concurrent threads.
+     * @param values    {@link List} elements for filtering.
+     * @param predicate condition for filtering.
+     * @param <T>       type of elements.
+     * @return {@link List} of initial elements which satisfy the {@code predicate}.
+     * @throws InterruptedException if threads error happened.
+     */
+    @Override
+    public <T> List<T> filter(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
+        return result(threads, values,
+                (list) -> list.stream().filter(predicate).collect(Collectors.toList()),
+                (list) -> list.stream().flatMap(List::stream).collect(Collectors.toList()));
+    }
+
+    /**
+     * @param threads number or concurrent threads.
+     * @param values  {@link List} elements for mapping.
+     * @param f       {@link Function} for mapping
+     * @param <T>     type of elements in {@code values}
+     * @param <U>     function result type
+     * @return {@link List} of initial elements which mapped by {@code f}.
+     * @throws InterruptedException if threads error happened
+     */
+    @Override
+    public <T, U> List<U> map(int threads, List<? extends T> values, Function<? super T, ? extends U> f) throws InterruptedException {
+        return result(threads, values,
+                (list) -> list.stream().map(f).collect(Collectors.toList()),
+                (list) -> list.stream().flatMap(List::stream).collect(Collectors.toList()));
     }
 }
