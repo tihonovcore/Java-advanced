@@ -24,7 +24,7 @@ public class IterativeParallelism implements ListIP {
             throw new IllegalArgumentException("Count of threads should be >= 1");
         }
 
-        threads = Math.min(threads, list.size());
+        threads = Math.max(1, Math.min(threads, list.size()));
         int blockSize = list.size() / threads;
 
         int from = 0, to = blockSize;
