@@ -70,34 +70,34 @@ public class IterativeParallelism implements ListIP {
      * Find and return maximum element by comparator
      *
      * @param threads    number or concurrent threads.
-     * @param list       list elements for checking.
+     * @param values       values elements for checking.
      * @param comparator value comparator.
      * @param <T>        type of elements.
      * @return maximum element
      * @throws InterruptedException if threads error happened
      */
     @Override
-    public <T> T maximum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        Function<List<? extends T>, ? extends T> max = (l) -> list.stream().max(comparator).orElse(null);
+    public <T> T maximum(int threads, List<? extends T> values, Comparator<? super T> comparator) throws InterruptedException {
+        Function<List<? extends T>, ? extends T> max = (list) -> list.stream().max(comparator).orElse(null);
 
-        return result(threads, list, max, max);
+        return result(threads, values, max, max);
     }
 
     /**
      * Find and return minimum element by comparator
      *
      * @param threads    number or concurrent threads.
-     * @param list       list elements for checking.
+     * @param values       values elements for checking.
      * @param comparator value comparator.
      * @param <T>        type of elements.
      * @return minimum element
      * @throws InterruptedException if threads error happened
      */
     @Override
-    public <T> T minimum(int threads, List<? extends T> list, Comparator<? super T> comparator) throws InterruptedException {
-        Function<List<? extends T>, ? extends T> min = (l) -> list.stream().min(comparator).orElse(null);
+    public <T> T minimum(int threads, List<? extends T> values, Comparator<? super T> comparator) throws InterruptedException {
+        Function<List<? extends T>, ? extends T> min = (list) -> list.stream().min(comparator).orElse(null);
 
-        return result(threads, list, min, min);
+        return result(threads, values, min, min);
     }
 
     /**
