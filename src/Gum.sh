@@ -51,7 +51,11 @@ function setTask() {
     baseClassSlash="ru/ifmo/rain/${name}"
     baseRunJar="info.kgeorgiy.java.advanced"
 
-    classDot="${baseClassDot}.${package}.${mainClass}"
+    if [[ "$inputt" == "8" ]]; then
+        classDot="${baseClassDot}.${package}.${mainClass},${baseClassDot}.${package}.IterativeParallelism"
+    else
+        classDot="${baseClassDot}.${package}.${mainClass}"
+    fi
     classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
     runJar="${baseRunJar}.${package}"
     classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"

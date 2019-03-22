@@ -2,17 +2,24 @@ package ru.ifmo.rain.tihonov.mapper;
 
 import info.kgeorgiy.java.advanced.mapper.ParallelMapper;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Function;
 
-import static java.lang.Thread.sleep;
+import static java.lang.Thread.interrupted;
 
 public class ParallelMapperImpl implements ParallelMapper {
     private final List<Thread> workers;
-    private final Queue<Runnable> tasks;
+    private final Queue<Task> tasks;
+
+    private class Task {
+        Runnable task;
+        Runnable increment;
+
+        Task(Runnable task, Runnable increment) {
+            this.task = task;
+            this.increment = increment;
+        }
+    }
 
     public ParallelMapperImpl(int threads) {
         workers = new ArrayList<>();
@@ -21,11 +28,10 @@ public class ParallelMapperImpl implements ParallelMapper {
         for (int i = 0; i < threads; i++) {
             workers.add(new Thread(() -> {
                 try {
-                    while (true) {
+                    while (!interrupted()) {
                         solve();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
                 }
             }));
             workers.get(i).start();
@@ -33,41 +39,45 @@ public class ParallelMapperImpl implements ParallelMapper {
     }
 
     private void solve() throws InterruptedException {
-        Runnable runnable;
+        Task task;
         synchronized (tasks) {
             while (tasks.isEmpty()) {
                 tasks.wait();
             }
-            runnable = tasks.poll();
+            task = tasks.poll();
             tasks.notify();
         }
-        runnable.run();
+
+        task.task.run();
+        task.increment.run();
     }
 
     @Override
     public <T, R> List<R> map(Function<? super T, ? extends R> function, List<? extends T> list) throws InterruptedException {
-        final List<R> result = new ArrayList<>();
+        final ConcurrentList<R> result = new ConcurrentList<>(Collections.nCopies(list.size(), null));
         for (int i = 0; i < list.size(); i++) {
-            result.add(null);
-
             final int index = i;
-            add(() -> result.set(index, function.apply(list.get(index))));
+            add(() -> result.set(index, function.apply(list.get(index))), result::increment);
         }
 
-//        todo wait()
-        sleep(3000);
-        return result;
+        return result.getList();
     }
 
-    private void add(Runnable runnable) {
+    private <T> void add(Runnable runnable, Runnable increment) {
         synchronized (tasks) {
-            tasks.add(runnable);
+            tasks.add(new Task(runnable, increment));
             tasks.notify();
         }
     }
 
     @Override
     public void close() {
-        //todo
+        for (Thread t : workers) {
+            t.interrupt();
+            try {
+                t.join();
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 }
