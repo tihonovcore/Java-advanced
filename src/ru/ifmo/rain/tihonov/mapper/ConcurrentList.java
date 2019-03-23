@@ -19,7 +19,6 @@ class ConcurrentList<T> extends AbstractList<T> {
             while (finished != list.size()) {
                 wait();
             }
-            notify();
         }
         return list;
     }

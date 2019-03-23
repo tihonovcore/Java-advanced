@@ -7,6 +7,9 @@ import java.util.function.Function;
 
 import static java.lang.Thread.interrupted;
 
+/**
+ * {@link ParallelMapper} implementation
+ */
 public class ParallelMapperImpl implements ParallelMapper {
     private final List<Thread> workers;
     private final Queue<Task> tasks;
@@ -21,6 +24,11 @@ public class ParallelMapperImpl implements ParallelMapper {
         }
     }
 
+    /**
+     * Create {@code threads} threads.
+     *
+     * @param threads number of creating threads
+     */
     public ParallelMapperImpl(int threads) {
         workers = new ArrayList<>();
         tasks = new ArrayDeque<>();
@@ -45,13 +53,22 @@ public class ParallelMapperImpl implements ParallelMapper {
                 tasks.wait();
             }
             task = tasks.poll();
-            tasks.notify();
         }
 
         task.task.run();
         task.increment.run();
     }
 
+    /**
+     * Evaluate {@code function} for each element of {@code list}.
+     *
+     * @param function {@link Function} for evaluating
+     * @param list {@link List} for applying {@code function}
+     * @param <T> type {@code list} elements
+     * @param <R> type of {@code function} result
+     * @return {@code list} with applied {@code function} for each element
+     * @throws InterruptedException if threads error happened
+     */
     @Override
     public <T, R> List<R> map(Function<? super T, ? extends R> function, List<? extends T> list) throws InterruptedException {
         final ConcurrentList<R> result = new ConcurrentList<>(Collections.nCopies(list.size(), null));
@@ -63,13 +80,16 @@ public class ParallelMapperImpl implements ParallelMapper {
         return result.getList();
     }
 
-    private <T> void add(Runnable runnable, Runnable increment) {
+    private void add(Runnable runnable, Runnable increment) {
         synchronized (tasks) {
             tasks.add(new Task(runnable, increment));
             tasks.notify();
         }
     }
 
+    /**
+     * Stop all threads
+     */
     @Override
     public void close() {
         for (Thread t : workers) {

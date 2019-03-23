@@ -36,12 +36,15 @@ function gump() {
     baseTestPath=${array[1]}
     baseLibPath=${array[2]}
     basePackagePath=${array[3]}
-    if [[ "${array[4]}" == "" ]]; then
-        input="8" #default task
-    fi
+    input=${array[4]}
     salt=${array[5]}
+
     if [[ "${array[6]}" != "" ]]; then
         outPath=${array[6]}
+    fi
+
+    if [[ "${input}" == "" ]]; then
+        input="8" #default task
     fi
 }
 
