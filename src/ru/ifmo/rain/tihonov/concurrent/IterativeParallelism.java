@@ -1,6 +1,7 @@
 package ru.ifmo.rain.tihonov.concurrent;
 
 import info.kgeorgiy.java.advanced.concurrent.ListIP;
+import info.kgeorgiy.java.advanced.mapper.ParallelMapper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,10 +12,24 @@ import java.util.stream.Collectors;
  * Contains methods for parallel evaluating
  */
 public class IterativeParallelism implements ListIP {
+    private ParallelMapper mapper;
+
     /**
-     * Default constructor
+     * Default constructor.
+     * Threads will create for each call methods.
      */
     public IterativeParallelism() {
+        mapper = null;
+    }
+
+    /**
+     * Constructor this thread pool.
+     * Threads takes from {@code mapper} and doesn't create here.
+     *
+     * @param mapper thread pool
+     */
+    public IterativeParallelism(ParallelMapper mapper) {
+        this.mapper = mapper;
     }
 
     private <T> List<List<? extends T>> getSublists(int threads, List<? extends T> list) {
@@ -46,21 +61,25 @@ public class IterativeParallelism implements ListIP {
                                Function<List<? extends U>, ? extends R> concat) throws InterruptedException {
         var lists = getSublists(threads, list);
 
-        List<Thread> workers = new ArrayList<>();
-        List<U> result = new ArrayList<>();
-        for (int i = 0; i < lists.size(); i++) {
-            result.add(null);
-        }
+        final List<U> result = new ArrayList<>();
+        if (mapper == null) {
+            List<Thread> workers = new ArrayList<>();
+            for (int i = 0; i < lists.size(); i++) {
+                result.add(null);
+            }
 
-        for (int i = 0; i < lists.size(); i++) {
-            final List<? extends T> temp = lists.get(i);
-            final int curr = i;
-            workers.add(new Thread(() -> result.set(curr, func.apply(temp))));
-            workers.get(i).start();
-        }
+            for (int i = 0; i < lists.size(); i++) {
+                final List<? extends T> temp = lists.get(i);
+                final int curr = i;
+                workers.add(new Thread(() -> result.set(curr, func.apply(temp))));
+                workers.get(i).start();
+            }
 
-        for (Thread w : workers) {
-            w.join();
+            for (Thread w : workers) {
+                w.join();
+            }
+        } else {
+            result.addAll(mapper.map(func, lists));
         }
 
         return concat.apply(result);
@@ -70,7 +89,7 @@ public class IterativeParallelism implements ListIP {
      * Find and return maximum element by comparator
      *
      * @param threads    number or concurrent threads.
-     * @param values       values elements for checking.
+     * @param values     values elements for checking.
      * @param comparator value comparator.
      * @param <T>        type of elements.
      * @return maximum element
@@ -87,7 +106,7 @@ public class IterativeParallelism implements ListIP {
      * Find and return minimum element by comparator
      *
      * @param threads    number or concurrent threads.
-     * @param values       values elements for checking.
+     * @param values     values elements for checking.
      * @param comparator value comparator.
      * @param <T>        type of elements.
      * @return minimum element
@@ -104,7 +123,7 @@ public class IterativeParallelism implements ListIP {
      * Check all elements for matching predicate
      *
      * @param threads   number or concurrent threads.
-     * @param values      {@link List} elements for checking
+     * @param values    {@link List} elements for checking
      * @param predicate test predicate.
      * @param <T>       type of elements
      * @return true if any element of values match test predicate, otherwise false
@@ -121,7 +140,7 @@ public class IterativeParallelism implements ListIP {
      * Check elements for matching predicate
      *
      * @param threads   number or concurrent threads.
-     * @param values      {@link List} elements for checking
+     * @param values    {@link List} elements for checking
      * @param predicate test predicate.
      * @param <T>       type of elements
      * @return true if any element of values match test predicate, otherwise false

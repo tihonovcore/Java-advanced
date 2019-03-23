@@ -17,6 +17,9 @@ baseClassSlash="ru/ifmo/rain/${name}"
 #prefix of jar name
 baseRunJar="info.kgeorgiy.java.advanced"
 
+#out path
+outPath="${basePackagePath}/out"
+
 #git
 git="https://www.kgeorgiy.info/git/geo/java-advanced-2019"
 
@@ -33,8 +36,13 @@ function gump() {
     baseTestPath=${array[1]}
     baseLibPath=${array[2]}
     basePackagePath=${array[3]}
-    input=${array[4]}
+    if [[ "${array[4]}" == "" ]]; then
+        input="8" #default task
+    fi
     salt=${array[5]}
+    if [[ "${array[6]}" != "" ]]; then
+        outPath=${array[6]}
+    fi
 }
 
 function info() {
@@ -47,27 +55,33 @@ function info() {
 }
 
 function setTask() {
+    task="${input}"
+
     baseClassDot="ru.ifmo.rain.${name}"
     baseClassSlash="ru/ifmo/rain/${name}"
     baseRunJar="info.kgeorgiy.java.advanced"
 
-    if [[ "$inputt" == "8" ]]; then
-        classDot="${baseClassDot}.${package}.${mainClass},${baseClassDot}.${package}.IterativeParallelism"
-    else
-        classDot="${baseClassDot}.${package}.${mainClass}"
-    fi
-    classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
     runJar="${baseRunJar}.${package}"
-    classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar"
+    classDot="${baseClassDot}.${package}.${mainClass}"
+    classSlash="${basePackagePath}/${baseClassSlash}/${package}/${mainClass}.java"
+    classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar:${outPath}"
     runArg=""
+
+    if [[ "$input" == "8" ]]; then
+        classDot="${classDot},${baseClassDot}.concurrent.IterativeParallelism"
+        classPath="${classPath}:${baseTestPath}/${baseRunJar}.concurrent.jar"
+    fi
 
     echo "Task ${input} selected"
 }
 
 function compile() {
-    rm -f ${classSlash}/*.class
     echo "Compiling..."
-    javac -cp ${classPath} ${classSlash}
+    javac -cp ${classPath} -d ${outPath} ${classSlash}
+
+    if [[ "${task}" == "8" ]]; then
+        javac -cp ${classPath} -d ${outPath} "${basePackagePath}/${baseClassSlash}/concurrent/IterativeParallelism.java"
+    fi
 }
 
 function run() {
