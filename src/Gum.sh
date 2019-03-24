@@ -70,6 +70,10 @@ function setTask() {
     classPath="${basePackagePath}:${baseTestPath}:${baseLibPath}:${baseTestPath}/${runJar}.jar:${outPath}"
     runArg=""
 
+    if [[ "$input" == "7" ]]; then
+        classPath="${classPath}:${baseTestPath}/${baseRunJar}.mapper.jar"
+    fi
+
     if [[ "$input" == "8" ]]; then
         classDot="${classDot},${baseClassDot}.concurrent.IterativeParallelism"
         classPath="${classPath}:${baseTestPath}/${baseRunJar}.concurrent.jar"
