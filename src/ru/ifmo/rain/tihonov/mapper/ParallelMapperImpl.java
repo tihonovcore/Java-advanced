@@ -63,9 +63,9 @@ public class ParallelMapperImpl implements ParallelMapper {
      * Evaluate {@code function} for each element of {@code list}.
      *
      * @param function {@link Function} for evaluating
-     * @param list {@link List} for applying {@code function}
-     * @param <T> type {@code list} elements
-     * @param <R> type of {@code function} result
+     * @param list     {@link List} for applying {@code function}
+     * @param <T>      type {@code list} elements
+     * @param <R>      type of {@code function} result
      * @return {@code list} with applied {@code function} for each element
      * @throws InterruptedException if threads error happened
      */

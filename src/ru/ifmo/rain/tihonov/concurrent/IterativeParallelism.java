@@ -36,7 +36,7 @@ public class IterativeParallelism implements ListIP {
         List<List<? extends T>> result = new ArrayList<>();
 
         if (threads <= 0) {
-            throw new IllegalArgumentException("Count of threads should be >= 1");
+            throw new IllegalArgumentException("Count of threads should be >= 1, but was: " + threads);
         }
 
         threads = Math.max(1, Math.min(threads, list.size()));
@@ -114,9 +114,7 @@ public class IterativeParallelism implements ListIP {
      */
     @Override
     public <T> T minimum(int threads, List<? extends T> values, Comparator<? super T> comparator) throws InterruptedException {
-        Function<List<? extends T>, ? extends T> min = (list) -> list.stream().min(comparator).orElse(null);
-
-        return result(threads, values, min, min);
+        return maximum(threads, values, Collections.reverseOrder(comparator));
     }
 
     /**
@@ -148,9 +146,7 @@ public class IterativeParallelism implements ListIP {
      */
     @Override
     public <T> boolean any(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
-        return result(threads, values,
-                (list) -> list.stream().anyMatch(predicate),
-                (list) -> list.stream().anyMatch(b -> b));
+        return !all(threads, values, predicate.negate());
     }
 
     /**

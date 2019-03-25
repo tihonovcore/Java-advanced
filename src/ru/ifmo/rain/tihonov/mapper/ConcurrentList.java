@@ -3,8 +3,8 @@ package ru.ifmo.rain.tihonov.mapper;
 import java.util.*;
 
 class ConcurrentList<T> extends AbstractList<T> {
-    private List<T> list;
-    private Integer finished = 0;
+    private final List<T> list;
+    private int finished = 0;
 
     ConcurrentList() {
         this(Collections.emptyList());
