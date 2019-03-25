@@ -15,6 +15,7 @@
 
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
+**С модификацией к HW8** <br>
 [Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/concurrent/IterativeParallelism.java "Решение")<br>
 
 ## HW6 Javadoc

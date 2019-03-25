@@ -20,33 +20,24 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 /**
- * Impelementation for {@link JarImpler}
+ * Implementation for {@link JarImpler}
  */
 public class Implementor implements JarImpler {
     /**
-     * {@link StringBuilder} contains methods' bodies.
+     * Error flag.
+     * {@code true} if error occurred, {@code false} otherwise
      */
-    private StringBuilder result;
-
-    /**
-     * {@link Set} contains methods and constructors.
-     */
-    private Set<Executable> methodsSet;
-
-    /**
-     * {@link Set} contains titles of methods and constructors.
-     */
-    private Set<String> methodsTitle;
+    private static boolean errorOccurred = false;
 
     /**
      * {@link String} equal line separator on current system
      */
-    private String newLine = System.lineSeparator();
+    private final static String newLine = System.lineSeparator();
 
     /**
      * {@link String} contains 4 whitespace
      */
-    private String tab = "    ";
+    private final static String indent = "    ";
 
     /**
      * Default constructor
@@ -68,17 +59,23 @@ public class Implementor implements JarImpler {
      */
     public static void main(String[] args) {
         if (args == null) {
-            System.err.println("Expected not null argument");
+            error("Expected not null argument");
             return;
         }
 
         if (args.length != 2 && args.length != 3) {
-            System.err.println("Expected 2 or 3 arguments");
-            return;
+            error("Expected 2 or 3 arguments");
         }
 
         if (Arrays.stream(args).anyMatch(Objects::isNull)) {
-            System.err.println("Arguments can not be null");
+            error("Arguments can not be null");
+        }
+
+        if (args.length == 3 && !args[0].equals("-jar")) {
+            error("Unknown command: " + args[0]);
+        }
+
+        if (errorOccurred) {
             return;
         }
 
@@ -90,10 +87,20 @@ public class Implementor implements JarImpler {
                 implementor.implementJar(Class.forName(args[1]), Paths.get(args[2]));
             }
         } catch (ClassNotFoundException e) {
-            System.err.println("Not found class: " + e.getMessage());
+            error("Not found class: " + e.getMessage());
         } catch (ImplerException e) {
-            System.err.println("Error while generating file or jar: " + e.getMessage());
+            error("Error while generating file or jar: " + e.getMessage());
         }
+    }
+
+    /**
+     * Print message if error occurred and set flag {@code errorOccurred} as {@code true}
+     *
+     * @param message information about error
+     */
+    private static void error(String message) {
+        errorOccurred = true;
+        System.err.println(message);
     }
 
     /**
@@ -111,7 +118,7 @@ public class Implementor implements JarImpler {
                     replace('.', File.separatorChar)).
                     resolve(token.getSimpleName() + "Impl" + suffix);
         } catch (InvalidPathException e) {
-            throw new ImplerException("Path is invalid" + e.getMessage());
+            throw new ImplerException("Path is invalid", e);
         }
         return path;
     }
@@ -128,7 +135,7 @@ public class Implementor implements JarImpler {
             try {
                 Files.createDirectories(path.getParent());
             } catch (IOException e) {
-                throw new ImplerException("Can not create directories: " + e.getMessage());
+                throw new ImplerException("Can not create directories: " + e.getMessage(), e);
             }
         }
 
@@ -154,7 +161,7 @@ public class Implementor implements JarImpler {
         try {
             temp = Files.createTempDirectory(path.toAbsolutePath().getParent(), "temp");
         } catch (IOException e) {
-            throw new ImplerException("Error while creating temporary directory: " + e.getMessage());
+            throw new ImplerException("Error while creating temporary directory: " + e.getMessage(), e);
         }
 
         implement(token, temp);
@@ -181,9 +188,9 @@ public class Implementor implements JarImpler {
             writer.putNextEntry(new ZipEntry(token.getName().replace('.', '/') + "Impl.class"));
             Files.copy(getPath(token, temp, ".class"), writer);
         } catch (InvalidPathException e) {
-            throw new ImplerException("You are invalid: " + e.getMessage());
+            throw new ImplerException("You are invalid: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new ImplerException("IO or ZIP error : " + e.getMessage());
+            throw new ImplerException("IO or ZIP error : " + e.getMessage(), e);
         }
     }
 
@@ -215,9 +222,9 @@ public class Implementor implements JarImpler {
      */
     @Override
     public void implement(Class<?> token, Path path) throws ImplerException {
-        result = new StringBuilder();
-        methodsSet = new HashSet<>();
-        methodsTitle = new HashSet<>();
+        StringBuilder result = new StringBuilder();
+        Set<Executable> methodsSet = new HashSet<>();
+        Set<String> methodsTitle = new HashSet<>();
 
         if (token == null || path == null) {
             throw new ImplerException("Arguments can't be null");
@@ -228,25 +235,26 @@ public class Implementor implements JarImpler {
             throw new ImplerException("We can't extends from Enum, primitive, array, final or utility class");
         }
 
-        setPackage(token.getPackageName());
-        setTitle(token);
+        setPackage(token.getPackageName(), result);
+        setTitle(token, result);
 
-        findMethods(token);
+        findMethods(token, methodsSet, methodsTitle);
         methodsSet.addAll(Arrays.asList(token.getDeclaredConstructors()));
 
-        setMethods(token);
+        setMethods(token, methodsSet, result);
         result.append("}");
 
         path = createDirs(getPath(token, path, ".java"));
-        write(path);
+        write(path, result);
     }
 
     /**
      * Append line with package name to {@code result}.
      *
-     * @param name package name
+     * @param name   package name
+     * @param result package name add to this
      */
-    private void setPackage(String name) {
+    private void setPackage(String name, StringBuilder result) {
         if (!name.isEmpty()) {
             result.append("package ").append(name).append(";").append(newLine).append(newLine);
         }
@@ -255,9 +263,10 @@ public class Implementor implements JarImpler {
     /**
      * Append line class title.
      *
-     * @param token realizable interface or class
+     * @param token  realizable interface or class
+     * @param result class title add to this
      */
-    private void setTitle(Class<?> token) {
+    private void setTitle(Class<?> token, StringBuilder result) {
         result.append("public class ").append(token.getSimpleName()).append("Impl").
                 append((token.isInterface() ? " implements " : " extends ")).
                 append(token.getCanonicalName()).append(" {").append(newLine).append(newLine);
@@ -266,22 +275,26 @@ public class Implementor implements JarImpler {
     /**
      * Save implementation on the {@code path}.
      *
-     * @param path path to saving result
+     * @param path   path to saving result
+     * @param result print this in Unicode
      * @throws ImplerException error while creating file or saving result
      */
-    private void write(Path path) throws ImplerException {
-        toUnicode();
+    private void write(Path path, StringBuilder result) throws ImplerException {
+        result = convertToUnicode(result);
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(result.toString());
         } catch (IOException e) {
-            throw new ImplerException("IO error while saving result: " + e.getMessage());
+            throw new ImplerException("IO error while saving result: " + e.getMessage(), e);
         }
     }
 
     /**
      * Translate international symbols from {@code result} to Unicode
+     *
+     * @param result contains result file
+     * @return {@code result} converted to Unicode
      */
-    private void toUnicode() {
+    private StringBuilder convertToUnicode(StringBuilder result) {
         StringBuilder unicode = new StringBuilder();
         for (int i = 0; i < result.length(); i++) {
             char ch = result.charAt(i);
@@ -291,15 +304,17 @@ public class Implementor implements JarImpler {
                 unicode.append(ch);
             }
         }
-        result = unicode;
+        return unicode;
     }
 
     /**
      * Recursive search methods in superclass and interfaces
      *
-     * @param token realizable interface or class
+     * @param token        realizable interface or class
+     * @param methodsSet   {@link Set} which contains methods and constructors
+     * @param methodsTitle {@link Set} which contains title of methods and constructors
      */
-    private void findMethods(Class<?> token) {
+    private void findMethods(Class<?> token, Set<Executable> methodsSet, Set<String> methodsTitle) {
         for (Method method : token.getDeclaredMethods()) {
             String title = method.getName() + Arrays.toString(method.getParameterTypes());
             if (!methodsTitle.contains(title)) {
@@ -310,31 +325,33 @@ public class Implementor implements JarImpler {
 
         if ((token.getModifiers() & Modifier.ABSTRACT) != 0) {
             for (Class<?> c : token.getInterfaces()) {
-                findMethods(c);
+                findMethods(c, methodsSet, methodsTitle);
             }
         }
 
         if (token.getSuperclass() != null) {
-            findMethods(token.getSuperclass());
+            findMethods(token.getSuperclass(), methodsSet, methodsTitle);
         }
     }
 
     /**
      * Append title and body of methods and constructors.
      *
-     * @param token realizable interface or class
+     * @param token      realizable interface or class
+     * @param methodsSet {@link Set} which contains methods and constructors
+     * @param result     contains result file
      */
-    private void setMethods(Class<?> token) {
+    private void setMethods(Class<?> token, Set<Executable> methodsSet, StringBuilder result) {
         for (Executable m : methodsSet) {
             if ((m.getModifiers() & (Modifier.PRIVATE | Modifier.FINAL | Modifier.SYNCHRONIZED | Modifier.VOLATILE)) != 0) {
                 continue;
             }
 
-            setTitle(token, m);
+            setTitle(token, m, result);
             if (m instanceof Constructor) {
-                setConstructorBody(m);
+                setConstructorBody(m, result);
             } else if (m instanceof Method) {
-                setMethodBody(((Method) m).getReturnType());
+                setMethodBody(((Method) m).getReturnType(), result);
             }
         }
     }
@@ -346,35 +363,37 @@ public class Implementor implements JarImpler {
      * name of constructor or method, parameters list,
      * exceptions.
      *
-     * @param token realizable interface or class
-     * @param m     current method or constructor
+     * @param token  realizable interface or class
+     * @param m      current method or constructor
+     * @param result contains result file
      */
-    private void setTitle(Class<?> token, Executable m) {
-        result.append(tab);
+    private void setTitle(Class<?> token, Executable m, StringBuilder result) {
+        result.append(indent);
         if (m instanceof Constructor) {
             result.append(token.getSimpleName()).append("Impl");
         } else if (m instanceof Method) {
-            setModifiers((Method) m);
+            setModifiers((Method) m, result);
             Class<?> returnType = ((Method) m).getReturnType();
             result.append(returnType.getCanonicalName()).append(" ").append(m.getName());
         }
 
         result.append("(");
-        setArgs(m.getParameters());
+        setArgs(m.getParameters(), result);
         result.append(")");
 
         if (m.getExceptionTypes().length != 0) {
             result.append(" throws ");
-            setExceptions(m.getExceptionTypes());
+            setExceptions(m.getExceptionTypes(), result);
         }
     }
 
     /**
      * Append modifiers, besides <code>abstract</code>
      *
-     * @param m current method
+     * @param m      current method
+     * @param result contains result file
      */
-    private void setModifiers(Method m) {
+    private void setModifiers(Method m, StringBuilder result) {
         int mod = m.getModifiers();
         result.append(Modifier.toString(mod & (mod ^ (Modifier.NATIVE | Modifier.ABSTRACT | Modifier.TRANSIENT)))).append(" ");
     }
@@ -383,8 +402,9 @@ public class Implementor implements JarImpler {
      * Append list of parameters
      *
      * @param params array of {@link Parameter} to append
+     * @param result contains result file
      */
-    private void setArgs(Parameter[] params) {
+    private void setArgs(Parameter[] params, StringBuilder result) {
         for (int i = 0; i < params.length; i++) {
             Parameter c = params[i];
             result.append(c.getType().getCanonicalName()).append(" ").append(c.getName());
@@ -398,8 +418,9 @@ public class Implementor implements JarImpler {
      * Append list of exceptions
      *
      * @param exceptions array of {@link Class} to append
+     * @param result     contains result file
      */
-    private void setExceptions(Class<?>[] exceptions) {
+    private void setExceptions(Class<?>[] exceptions, StringBuilder result) {
         for (int i = 0; i < exceptions.length; i++) {
             result.append(exceptions[i].getCanonicalName());
             if (i + 1 != exceptions.length) {
@@ -411,14 +432,15 @@ public class Implementor implements JarImpler {
     /**
      * Append body for parameters constructor
      *
-     * @param m current constructor
+     * @param m      current constructor
+     * @param result contains result file
      */
-    private void setConstructorBody(Executable m) {
+    private void setConstructorBody(Executable m, StringBuilder result) {
         if (Modifier.isPrivate(m.getModifiers())) {
             return;
         }
 
-        result.append("{").append(newLine).append(tab).append(tab).append("super(");
+        result.append("{").append(newLine).append(indent).append(indent).append("super(");
 
         Parameter[] p = m.getParameters();
         for (int i = 0; i < m.getParameterCount(); i++) {
@@ -427,7 +449,7 @@ public class Implementor implements JarImpler {
                 result.append(", ");
             }
         }
-        result.append(");").append(newLine).append(tab).append("}").append(newLine);
+        result.append(");").append(newLine).append(indent).append("}").append(newLine);
     }
 
     /**
@@ -439,11 +461,12 @@ public class Implementor implements JarImpler {
      * is <code>false</code>. For other primitive - <code>0</code>.
      * For references types - <code>null</code>.
      *
-     * @param c return type of realizable method
+     * @param c      return type of realizable method
+     * @param result contains result file
      */
-    private void setMethodBody(Class<?> c) {
+    private void setMethodBody(Class<?> c, StringBuilder result) {
         result.append(" {").append(newLine);
-        result.append(tab).append(tab);
+        result.append(indent).append(indent);
         if (c.isPrimitive()) {
             if (!c.equals(void.class)) {
                 result.append("return ");
@@ -456,7 +479,7 @@ public class Implementor implements JarImpler {
         } else {
             result.append("return null;");
         }
-        result.append(newLine).append(tab).append("}").append(newLine).append(newLine);
+        result.append(newLine).append(indent).append("}").append(newLine).append(newLine);
     }
 
     /**
