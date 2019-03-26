@@ -139,7 +139,7 @@ while [[ true ]]
 do
     case ${input} in
     "1" )
-        mainClass="Walk"
+        mainClass="RecursiveWalk"
         package="walk"
         setTask
     ;;
