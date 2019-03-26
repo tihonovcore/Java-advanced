@@ -11,7 +11,8 @@
 
 ## HW8 ParallelMapperImpl
 ###### Реализация `ParallelMapper`, вычисляющая функцию на каждом из указанных аргуметнов параллельно
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/mapper/ParallelMapperImpl.java "Решение")<br>
+[ParallelMapperImpl](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/mapper/ParallelMapperImpl.java "Решение")<br>
+[ConcurrentList](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/mapper/ConcurrentList.java "")
 
 ## HW7 IterativeParallelism
 ###### Класс `IterativeParallelism`, обрабатывающий списки в несколько потоков
@@ -33,19 +34,22 @@
 ## HW4 Implementor
 ###### Герератор реализации классов и интерфейсов
 **HW5 и HW6 - модификации HW4, поэтому все работы в одном файле** <br>
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")<br>
+[Implementor](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/Implementor.java "Сложная версия")<br>
+[Manifest](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/implementor/MANIFEST.MF "Сложная версия")
 
 ## HW3 Student
 ###### Реализация интерфейса базы данных
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/student/StudentDB.java "Простая версия") <br>
-
-Интерфейс простой версии [StudentQuery](https://www.kgeorgiy.info/git/geo/java-advanced-2019/src/master/modules/info.kgeorgiy.java.advanced.student/info/kgeorgiy/java/advanced/student/StudentQuery.java "Простая версия") <br>
-Интерфейс усложненной версии [StudentGroupQuery](https://www.kgeorgiy.info/git/geo/java-advanced-2019/src/master/modules/info.kgeorgiy.java.advanced.student/info/kgeorgiy/java/advanced/student/StudentGroupQuery.java "Усложненная версия")
+[StudentDB](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/student/StudentDB.java "Решение") <br>
 
 ## HW2 ArraySet
 ###### Класс `ArraySet`, реализующий неизменяемое упорядоченное множество
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ArraySet.java "Усложненная версия")
+[ArraySet](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ArraySet.java "Решение")<br>
+[ReversibleList](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/arrayset/ReversibleList.java)
 
 ## HW1 Walk
 ###### Хеширование файлов в директории и поддиректориях
-[Solution](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/walk/RecursiveWalk.java "Усложненная версия")
+[RecursiveWalk](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/walk/RecursiveWalk.java "Решение")<br>
+[Walker](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/walk/Walker.java)
+
+## Tools
+[Logger](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/tools/Logger.java "Logger")
