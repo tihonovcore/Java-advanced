@@ -18,57 +18,41 @@ public class WebCrawler implements Crawler {
         this.perHost = perHost;
     }
 
-    private Map<String, Integer> urls;
-    private Queue<String> queue = new ArrayDeque<>();
-
     @Override
     public Result download(String url, int depth) {
-        urls = new HashMap<>();
-        queue.add(url);
-        urls.put(url, 0);
-
-        try {
-            return bfs(depth);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Map<String, IOException> excp = new HashMap<>();
-    private Result bfs(int depth) throws IOException {
+        Map<String, IOException> exceptions = new HashMap<>();
         List<String> result = new ArrayList<>();
+
+        Map<String, Integer> urls = new HashMap<>();
+        urls.put(url, 0);
+        Queue<String> queue = new ArrayDeque<>();
+        queue.add(url);
 
         while (!queue.isEmpty()) {
             String curr = queue.poll();
 
             if (urls.get(curr) + 1 <= depth) {
-                Document document;
                 try {
-                    document = downloader.download(curr);
+                    for (String currentLink : downloader.download(curr).extractLinks()) {
+                        if (!urls.containsKey(currentLink)) {
+                            queue.add(currentLink);
+                            urls.put(currentLink, urls.get(curr) + 1);
+                        }
+                    }
+
+                    result.add(curr);
                 } catch (IOException e) {
-                    System.err.println(curr);
-                    if (excp.containsKey(curr)) {
-                        excp.get(curr).addSuppressed(e);
+                    if (exceptions.containsKey(curr)) {
+                        exceptions.get(curr).addSuppressed(e);
                     } else {
-                        excp.put(curr, e);
-                    }
-                    continue;
-                } catch (NullPointerException e) {
-                    System.err.println(curr);
-                    continue;
-                }
-                result.add(curr);
-                for (String currentLink : document.extractLinks()) {
-                    if (!urls.containsKey(currentLink)) {
-                        queue.add(currentLink);
-                        urls.put(currentLink, urls.get(curr) + 1);
+                        exceptions.put(curr, e);
                     }
                 }
+
             }
         }
 
-        return new Result(result, excp);
+        return new Result(result, exceptions);
     }
 
     @Override
