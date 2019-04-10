@@ -4,18 +4,15 @@ import info.kgeorgiy.java.advanced.crawler.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 
 public class WebCrawler implements Crawler {
     private Downloader downloader;
-    private int downloaders;
-    private int extractors;
-    private int perHost;
+    private Mapper mapper;
 
     public WebCrawler(Downloader downloader, int downloaders, int extractors, int perHost) {
         this.downloader = downloader;
-        this.downloaders = downloaders;
-        this.extractors = extractors;
-        this.perHost = perHost;
+        this.mapper = new Mapper(Integer.min(downloaders, 50)); //todo ??????
     }
 
     @Override
@@ -31,24 +28,38 @@ public class WebCrawler implements Crawler {
         while (!queue.isEmpty()) {
             String curr = queue.poll();
 
-            if (urls.get(curr) + 1 <= depth) {
+            if (urls.get(curr) >= depth) {
+                continue;
+            }
+
+            Function<String, List<String>> load = (String s) -> {
+                List<String> list = new ArrayList<>();
                 try {
-                    for (String currentLink : downloader.download(curr).extractLinks()) {
-                        if (!urls.containsKey(currentLink)) {
-                            queue.add(currentLink);
-                            urls.put(currentLink, urls.get(curr) + 1);
+                    list = downloader.download(s).extractLinks();
+                } catch (IOException e) {
+                    synchronized (exceptions) {
+                        if (exceptions.containsKey(curr)) {
+                            exceptions.get(curr).addSuppressed(e);
+                        } else {
+                            exceptions.put(curr, e);
                         }
                     }
+                }
+                return list;
+            };
 
-                    result.add(curr);
-                } catch (IOException e) {
-                    if (exceptions.containsKey(curr)) {
-                        exceptions.get(curr).addSuppressed(e);
-                    } else {
-                        exceptions.put(curr, e);
+            try {
+                for (String currentLink : mapper.map(load, curr)) {
+                    if (!urls.containsKey(currentLink)) {
+                        queue.add(currentLink);
+                        urls.put(currentLink, urls.get(curr) + 1);
                     }
                 }
+            } catch (InterruptedException ignored) {
+            }
 
+            if (!exceptions.containsKey(curr)) {
+                result.add(curr);
             }
         }
 
@@ -57,6 +68,6 @@ public class WebCrawler implements Crawler {
 
     @Override
     public void close() {
-
+        mapper.close();
     }
 }
