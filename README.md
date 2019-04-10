@@ -9,6 +9,10 @@
 [Docs](https://github.com/tihonovcore/Java-advanced/blob/master/src/GumDoc.java "Документация")<br>
 [Пример gump](https://github.com/tihonovcore/Java-advanced/blob/master/src/gump "gump")
 
+## HW9 WebCrawler
+###### Рекурсивный обход сайтов
+[WebCrawler](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/crawler/WebCrawler.java "Решение")<br>
+
 ## HW8 ParallelMapperImpl
 ###### Реализация `ParallelMapper`, вычисляющая функцию на каждом из указанных аргуметнов параллельно
 [ParallelMapperImpl](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/mapper/ParallelMapperImpl.java "Решение")<br>

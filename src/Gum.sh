@@ -178,6 +178,11 @@ do
         package="mapper"
         setTask
     ;;
+    "9" )
+        mainClass="WebCrawler"
+        package="crawler"
+        setTask
+    ;;
     "r" )
         run
     ;;
