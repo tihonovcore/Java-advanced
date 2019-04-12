@@ -10,6 +10,12 @@ public class Mapper implements AutoCloseable {
     private final List<Thread> workers;
     private final Queue<Runnable> tasks;
 
+    private final Counter counter = new Counter();
+
+    private class Counter {
+        int started = 0, finished = 0;
+    }
+
     private class Task<R> {
         public R result;
         public boolean ready = false;
@@ -23,6 +29,15 @@ public class Mapper implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    public boolean working() {
+        boolean result;
+        synchronized (counter) {
+            result = counter.started != counter.finished;
+            counter.notify();
+        }
+        return result;
     }
 
     /**
@@ -58,9 +73,14 @@ public class Mapper implements AutoCloseable {
             tasks.notify();
         }
         task.run();
+
+        synchronized (counter) {
+            counter.finished++;
+            counter.notify();
+        }
     }
 
-    public <T, R> R map(Function<? super T, ? extends R> function, T value) throws InterruptedException {
+    public <T, R> void map(Function<? super T, ? extends R> function, T value) throws InterruptedException {
         Task<R> result = new Task<>();
         add(() -> {
             result.result = function.apply(value);
@@ -69,11 +89,13 @@ public class Mapper implements AutoCloseable {
                 result.notify();
             }
         });
-
-        return result.getResult();
     }
 
     private void add(Runnable runnable) {
+        synchronized (counter) {
+            counter.started++;
+            counter.notify();
+        }
         synchronized (tasks) {
             tasks.add(runnable);
             tasks.notify();
