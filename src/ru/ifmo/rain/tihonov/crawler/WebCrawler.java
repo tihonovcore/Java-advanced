@@ -1,5 +1,6 @@
 package ru.ifmo.rain.tihonov.crawler;
 
+import info.kgeorgiy.java.advanced.crawler.CachingDownloader;
 import info.kgeorgiy.java.advanced.crawler.Crawler;
 import info.kgeorgiy.java.advanced.crawler.Downloader;
 import info.kgeorgiy.java.advanced.crawler.Result;
@@ -8,6 +9,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * Implementation of {@link Crawler}
+ */
 public class WebCrawler implements Crawler {
     private Counter counter = new Counter();
 
@@ -19,6 +23,12 @@ public class WebCrawler implements Crawler {
     private final static int capacity = 10000;
     private final static int maxPoolSize = 5000;
 
+    /**
+     * @param downloader  {@link Downloader} for loading pages
+     * @param downloaders max number parallel downloads pages
+     * @param extractors  max number parallel extractors pages
+     * @param perHost     max number parallel calls host
+     */
     public WebCrawler(Downloader downloader, int downloaders, int extractors, int perHost) {
         this.downloader = downloader;
 
@@ -26,18 +36,21 @@ public class WebCrawler implements Crawler {
         extractor = newThreadPoolExecutor(Integer.min(extractors, maxPoolSize));
     }
 
-    private ThreadPoolExecutor newThreadPoolExecutor(int threadPoolSize) {
-        return new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 1L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(capacity));
-    }
-
     private BlockingQueue<Pair> documents = new ArrayBlockingQueue<>(capacity);
     private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(capacity);
 
+    /**
+     * Start recursive download from {@code url} to depth equals {@code depth}
+     *
+     * @param url   is page which recursive walk start from
+     * @param depth is walk's depth
+     * @return {@link Result} with {@link List} of saved pages and {@link Map} contained {@link IOException}
+     */
     @Override
     public Result download(String url, int depth) {
         List<String> result = new ArrayList<>();
 
-        Map<String, Boolean> donwloaded = new ConcurrentHashMap<>();
+        Map<String, Boolean> downloaded = new ConcurrentHashMap<>();
         Map<String, IOException> exceptions = new ConcurrentHashMap<>();
         Map<String, Integer> distance = new ConcurrentHashMap<>();
 
@@ -48,8 +61,8 @@ public class WebCrawler implements Crawler {
             String curr = get();
             if (curr == null) continue;
 
-            if (!donwloaded.containsKey(curr) && distance.get(curr) <= depth) {
-                donwloaded.put(curr, true);
+            if (!downloaded.containsKey(curr) && distance.get(curr) <= depth) {
+                downloaded.put(curr, true);
 
                 Runnable extract = getExtract(exceptions, distance, depth, result);
 
@@ -136,9 +149,59 @@ public class WebCrawler implements Crawler {
         return result;
     }
 
+    /**
+     * Stop all threads
+     */
     @Override
     public void close() {
         loader.shutdownNow();
         extractor.shutdownNow();
+    }
+
+    /**
+     * Start downloading pages by {@link WebCrawler} if arguments are correct
+     *
+     * @param args there may be 5 or less values: url [depth [downloads [extractors [perHost]]]]
+     *             {@code url} is page which recursive walk start from
+     *             {@code depth} is walk's depth
+     *             {@code downloads} max number parallel downloads pages
+     *             {@code extractors} max number parallel extractors pages
+     *             {@code perHost} max number parallel calls host
+     */
+    public static void main(String[] args) {
+        if (args == null) {
+            error("args[] can not be null");
+            return;
+        }
+
+        if (Arrays.stream(args).anyMatch(Objects::isNull)) {
+            error("arguments can not be null");
+        }
+
+        String url = args[0];
+
+        int[] arguments = new int[4];
+        for (int i = 0; i < 4; i++) {
+            try {
+                arguments[i] = i < args.length ? Integer.parseInt(args[i]) : 1;
+            } catch (NumberFormatException e) {
+                error(args[i] + " isn't correct number");
+            }
+        }
+
+        try {
+            WebCrawler crawler = new WebCrawler(new CachingDownloader(), arguments[1], arguments[2], arguments[3]);
+            crawler.download(url, arguments[0]);
+        } catch (IOException e) {
+            error("error occurred while downloading");
+        }
+    }
+
+    private static void error(String message) {
+        System.err.println(message);
+    }
+
+    private ThreadPoolExecutor newThreadPoolExecutor(int threadPoolSize) {
+        return new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 1L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(capacity));
     }
 }

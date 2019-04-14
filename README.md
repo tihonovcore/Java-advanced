@@ -12,7 +12,8 @@
 ## HW9 WebCrawler
 ###### Сканер для рекурсивного обхода сайтов
 [WebCrawler](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/crawler/WebCrawler.java "Решение")<br>
-[Mapper](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/crawler/Mapper.java)<br>
+[Counter](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/crawler/Counter.java)<br>
+[Pair](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/crawler/Pair.java)<br>
 
 ## HW8 ParallelMapperImpl
 ###### Реализация `ParallelMapper`, вычисляющая функцию на каждом из указанных аргуметнов параллельно
