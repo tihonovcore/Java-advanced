@@ -6,17 +6,12 @@ import info.kgeorgiy.java.advanced.crawler.Downloader;
 import info.kgeorgiy.java.advanced.crawler.Result;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-@SuppressWarnings("Duplicates")
 public class WebCrawler implements Crawler {
     private Downloader downloader;
 
@@ -25,10 +20,11 @@ public class WebCrawler implements Crawler {
 
     public WebCrawler(Downloader downloader, int downloaders, int extractors, int perHost) {
         this.downloader = downloader;
-        this.loadMapper = new Mapper(Integer.min(downloaders, 10)); //todo ??????
-        this.extractMapper = new Mapper(Integer.min(extractors, 10));
+        this.loadMapper = new Mapper(Integer.min(downloaders, 10)); //todo fix border
+        this.extractMapper = new Mapper(Integer.min(extractors, 10)); //todo add extractor
     }
 
+    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(10000);
 
     @Override
     public Result download(String url, int depth) {
@@ -42,7 +38,6 @@ public class WebCrawler implements Crawler {
         Map<String, Integer> distance = new ConcurrentHashMap<>();
         distance.put(url, 0);
 
-        BlockingQueue<String> queue = new ArrayBlockingQueue<>(10000);
         queue.add(url);
 
         Function<String, Void> load = s -> {
@@ -79,7 +74,7 @@ public class WebCrawler implements Crawler {
         while (flag || loadMapper.working()) {
             flag = false;
             try {
-                String curr = queue.poll(10, TimeUnit.MILLISECONDS);
+                String curr = get();
                 if (curr == null) continue;
 
                 if (!donwloaded.containsKey(curr) && distance.get(curr) <= depth) {
@@ -91,6 +86,14 @@ public class WebCrawler implements Crawler {
 
         }
         return new Result(result, exceptions);
+    }
+
+    private String get() {
+        String result;
+        do {
+            result = queue.poll();
+        } while (result == null && (queue.size() != 0 || loadMapper.working()));
+        return result;
     }
 
     @Override
