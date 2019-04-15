@@ -80,38 +80,35 @@ public class WebCrawler implements Crawler {
         return () -> {
             List<String> list = new ArrayList<>();
 
-            Pair pair;
-            String s = "";
-            try {
-                while (true) {
-                    pair = documents.poll();
-
-                    if (pair != null && pair.document != null) {
-                        s = pair.string;
-                        break;
-                    }
-                    if (loader.getActiveCount() == 0 && documents.isEmpty()) {
-                        counter.finish();
-                        return;
-                    }
+            Pair pair = documents.poll();
+            while (pair == null) {
+                if (loader.getActiveCount() == 0 && documents.isEmpty()) {
+                    counter.finish();
+                    return;
                 }
+                pair = documents.poll();
+            }
+
+            String parentLink = pair.string;
+
+            try {
                 list = pair.document.extractLinks();
             } catch (IOException e) {
-                setException(exceptions, s, e);
+                setException(exceptions, parentLink, e);
             }
 
-            if (distance.get(s) + 1 < depth) {
-                for (String link : list) {
-                    if (!distance.containsKey(link)) {
-                        distance.put(link, distance.get(s) + 1);
-                        queue.add(link);
+            if (distance.get(parentLink) + 1 < depth) {
+                for (String extractedLink : list) {
+                    if (!distance.containsKey(extractedLink)) {
+                        distance.put(extractedLink, distance.get(parentLink) + 1);
+                        queue.add(extractedLink);
                     }
                 }
             }
 
-            if (!exceptions.containsKey(s)) {
+            if (!exceptions.containsKey(parentLink)) {
                 synchronized (result) {
-                    result.add(s);
+                    result.add(parentLink);
                 }
             }
 
