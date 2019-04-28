@@ -183,6 +183,16 @@ do
         package="crawler"
         setTask
     ;;
+    "10s" )
+        mainClass="HelloUDPServer"
+        package="hello"
+        setTask
+    ;;
+    "10c" )
+        mainClass="HelloUDPClient"
+        package="hello"
+        setTask
+    ;;
     "r" )
         run
     ;;

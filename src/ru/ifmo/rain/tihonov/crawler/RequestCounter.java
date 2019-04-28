@@ -1,6 +1,6 @@
 package ru.ifmo.rain.tihonov.crawler;
 
-public class RequestCounter {
+class RequestCounter {
     int requests;
 
     RequestCounter() {
