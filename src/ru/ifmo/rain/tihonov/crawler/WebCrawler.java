@@ -6,8 +6,11 @@ import info.kgeorgiy.java.advanced.crawler.Downloader;
 import info.kgeorgiy.java.advanced.crawler.Result;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.*;
+
+import static info.kgeorgiy.java.advanced.crawler.URLUtils.getHost;
 
 /**
  * Implementation of {@link Crawler}
@@ -20,6 +23,7 @@ public class WebCrawler implements Crawler {
     private ThreadPoolExecutor loader;
     private ThreadPoolExecutor extractor;
 
+    private int perHost;
     private final static int capacity = 10000;
     private final static int maxPoolSize = 5000;
 
@@ -34,6 +38,8 @@ public class WebCrawler implements Crawler {
 
         loader = newThreadPoolExecutor(Integer.min(downloaders, maxPoolSize));
         extractor = newThreadPoolExecutor(Integer.min(extractors, maxPoolSize));
+
+        this.perHost = perHost;
     }
 
     private final BlockingQueue<Pair> documents = new ArrayBlockingQueue<>(capacity);
@@ -126,13 +132,36 @@ public class WebCrawler implements Crawler {
         };
     }
 
+    private final Map<String, RequestCounter> hosts = new ConcurrentHashMap<>();
+
     private Runnable getLoad(Map<String, IOException> exceptions, String curr, Runnable extract) {
         return () -> {
+            String currHost;
+            try {
+                currHost = getHost(curr);
+            } catch (MalformedURLException e) {
+                error("Incorrect link: " + e.getMessage());
+                return;
+            }
+
+            synchronized (hosts) {
+                if (!hosts.containsKey(currHost)) {
+                    hosts.put(currHost, new RequestCounter());
+                }
+            }
+
+            synchronized (hosts.get(currHost)) {
+                while (hosts.get(currHost).requests >= perHost) {
+                    try {
+                        hosts.get(currHost).wait();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+                hosts.get(currHost).requests++;
+            }
+
             try {
                 documents.add(new Pair(downloader.download(curr), curr));
-                synchronized (documents) {
-                    documents.notify();
-                }
             } catch (IOException e) {
                 setException(exceptions, curr, e);
                 counter.finish();
@@ -141,11 +170,16 @@ public class WebCrawler implements Crawler {
                     queue.notify();
                 }
 
+                return;
+            } finally {
+                synchronized (hosts.get(currHost)) {
+                    hosts.get(currHost).requests--;
+                    hosts.get(currHost).notify();
+                }
+
                 synchronized (documents) {
                     documents.notify();
                 }
-
-                return;
             }
 
             extractor.execute(extract);
