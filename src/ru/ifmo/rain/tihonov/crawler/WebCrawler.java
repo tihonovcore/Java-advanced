@@ -36,7 +36,7 @@ public class WebCrawler implements Crawler {
         extractor = newThreadPoolExecutor(Integer.min(extractors, maxPoolSize));
     }
 
-    private BlockingQueue<Pair> documents = new ArrayBlockingQueue<>(capacity);
+    private final BlockingQueue<Pair> documents = new ArrayBlockingQueue<>(capacity);
     private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(capacity);
 
     /**
@@ -50,7 +50,7 @@ public class WebCrawler implements Crawler {
     public Result download(String url, int depth) {
         List<String> result = new ArrayList<>();
 
-        Map<String, Boolean> downloaded = new ConcurrentHashMap<>();
+        Set<String> downloaded = Collections.newSetFromMap(new ConcurrentHashMap<>());
         Map<String, IOException> exceptions = new ConcurrentHashMap<>();
         Map<String, Integer> distance = new ConcurrentHashMap<>();
 
@@ -58,11 +58,11 @@ public class WebCrawler implements Crawler {
         queue.add(url);
 
         do {
-            String curr = get();
+            String curr = getLink();
             if (curr == null) continue;
 
-            if (!downloaded.containsKey(curr) && distance.get(curr) <= depth) {
-                downloaded.put(curr, true);
+            if (!downloaded.contains(curr)) {
+                downloaded.add(curr);
 
                 Runnable extract = getExtract(exceptions, distance, depth, result);
 
@@ -80,16 +80,18 @@ public class WebCrawler implements Crawler {
         return () -> {
             List<String> list = new ArrayList<>();
 
-            Pair pair = documents.poll();
-            while (pair == null) {
-                if (loader.getActiveCount() == 0 && documents.isEmpty()) {
-                    counter.finish();
-                    return;
+            Pair pair;
+            synchronized (documents) {
+                while (documents.isEmpty() && counter.working()) {
+                    try {
+                        documents.wait();
+                    } catch (InterruptedException ignored) {
+                    }
                 }
                 pair = documents.poll();
             }
 
-            String parentLink = pair.string;
+            String parentLink = Objects.requireNonNull(pair).string;
 
             try {
                 list = pair.document.extractLinks();
@@ -102,6 +104,10 @@ public class WebCrawler implements Crawler {
                     if (!distance.containsKey(extractedLink)) {
                         distance.put(extractedLink, distance.get(parentLink) + 1);
                         queue.add(extractedLink);
+
+                        synchronized (queue) {
+                            queue.notify();
+                        }
                     }
                 }
             }
@@ -113,6 +119,10 @@ public class WebCrawler implements Crawler {
             }
 
             counter.finish();
+
+            synchronized (queue) {
+                queue.notify();
+            }
         };
     }
 
@@ -120,11 +130,24 @@ public class WebCrawler implements Crawler {
         return () -> {
             try {
                 documents.add(new Pair(downloader.download(curr), curr));
+                synchronized (documents) {
+                    documents.notify();
+                }
             } catch (IOException e) {
                 setException(exceptions, curr, e);
                 counter.finish();
+
+                synchronized (queue) {
+                    queue.notify();
+                }
+
+                synchronized (documents) {
+                    documents.notify();
+                }
+
                 return;
             }
+
             extractor.execute(extract);
         };
 
@@ -138,11 +161,20 @@ public class WebCrawler implements Crawler {
         }
     }
 
-    private String get() {
+    private String getLink() {
         String result;
-        do {
+
+        synchronized (queue) {
+            while (queue.isEmpty() && counter.working()) {
+                try {
+                    queue.wait();
+                } catch (InterruptedException ignored) {
+                }
+            }
+
             result = queue.poll();
-        } while (result == null && (!queue.isEmpty() || counter.working()));
+        }
+
         return result;
     }
 
@@ -175,10 +207,14 @@ public class WebCrawler implements Crawler {
             error("arguments can not be null");
         }
 
+        if (args.length == 0) {
+            error("not enough arguments");
+        }
+
         String url = args[0];
 
         int[] arguments = new int[4];
-        for (int i = 0; i < 4; i++) {
+        for (int i = 1; i < 5; i++) {
             try {
                 arguments[i] = i < args.length ? Integer.parseInt(args[i]) : 1;
             } catch (NumberFormatException e) {
