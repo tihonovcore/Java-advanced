@@ -1,33 +1,68 @@
 package ru.ifmo.rain.tihonov.hello;
 
+import info.kgeorgiy.java.advanced.hello.HelloServer;
+
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Arrays;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
-public class HelloUDPServer {
-    public static void main(String[] args) throws IOException { //todo remove
-        DatagramSocket ds = new DatagramSocket(1488);
+public class HelloUDPServer implements HelloServer {
+    private static final int TIMEOUT = 100;
+    private static final int CAPACITY = 1024;
 
-        byte[] result = new byte[64];
-        DatagramPacket dp = new DatagramPacket(result, result.length);
-        ds.receive(dp);
+    private List<Thread> threadList = new ArrayList<>();
 
-        System.out.println("Server get: " + Arrays.toString(result));
-
-        for (int i = 0; i < result.length; i++) {
-            if (result[i] != 0) {
-                result[i]++;
-            } else {
-                break;
-            }
+    @Override
+    public void start(int port, int threads) {
+        if (threads < 1) {
+            throw new IllegalArgumentException("<threads> should be 1 or more");
         }
 
-        InetAddress clientIP = dp.getAddress();
-        int clientPort = dp.getPort();
+        try {
+            DatagramSocket socket = new DatagramSocket(port);
+            socket.setSoTimeout(TIMEOUT);
 
-        DatagramPacket response = new DatagramPacket(result, result.length, clientIP, clientPort);
-        ds.send(response);
+            for (int i = 0; i < threads; i++) {
+                threadList.add(new Thread(() -> {
+                    try {
+                        while (true) {
+                            byte[] read = new byte[CAPACITY];
+                            DatagramPacket packet = new DatagramPacket(read, read.length);
+                            socket.receive(packet);
+
+                            byte[] res = getMessage("Hello, " + new String(packet.getData(), packet.getOffset(), packet.getLength()));
+                            InetAddress clientIP = packet.getAddress();
+                            int clientPort = packet.getPort();
+
+                            DatagramPacket response = new DatagramPacket(res, res.length, clientIP, clientPort);
+                            socket.send(response);
+                        }
+                    } catch (SocketTimeoutException e) {
+                        System.out.println("Very long waiting: " + e.getMessage());
+                    } catch (SocketException e) {
+                        System.out.println("Socket couldn't be opened: " + e.getMessage());
+                    } catch (IOException e) {
+                        System.out.println("Error while sending: " + e.getMessage());
+                    }
+                }));
+
+                threadList.get(i).start();
+            }
+        } catch (SocketException e) {
+            System.out.println("Socket couldn't be opened: " + e.getMessage());
+        }
+    }
+
+    private static byte[] getMessage(String message) {
+        return message.getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void close() {
+        for (Thread thread : threadList) {
+            thread.interrupt();
+        }
     }
 }

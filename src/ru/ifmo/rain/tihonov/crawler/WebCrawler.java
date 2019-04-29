@@ -56,7 +56,7 @@ public class WebCrawler implements Crawler {
     public Result download(String url, int depth) {
         List<String> result = new ArrayList<>();
 
-        Set<String> downloaded = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        Set<String> downloaded = new ConcurrentSkipListSet<>(); //Collections.newSetFromMap(new ConcurrentHashMap<>());
         Map<String, IOException> exceptions = new ConcurrentHashMap<>();
         Map<String, Integer> distance = new ConcurrentHashMap<>();
 
