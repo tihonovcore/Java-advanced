@@ -11,7 +11,7 @@
 
 ### HW10 HelloUDP
 ###### Клиент и сервер, взаимодействующие по UDP
-[HelloUDPClient](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/hello/HelloUDPClinet.java "Client")<br>
+[HelloUDPClient](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/hello/HelloUDPClient.java "Client")<br>
 [HelloUDPServer](https://github.com/tihonovcore/Java-advanced/blob/master/src/ru/ifmo/rain/tihonov/hello/HelloUDPServer.java "Server")<br>
 
 ### HW9 WebCrawler
